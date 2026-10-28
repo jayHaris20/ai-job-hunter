@@ -24,6 +24,8 @@ An automated job discovery workflow built with n8n that finds remote job listing
 4. JavaScript filters relevant opportunities.
 5. Remove Duplicates removes repeated URLs within the current input.
 6. Email node sends job alerts.
+<img width="593" height="299" alt="image" src="https://github.com/user-attachments/assets/899f071e-e00b-4945-9c22-71fe28251753" />
+
 
 ## Project Status
 - Workflow published in n8n.

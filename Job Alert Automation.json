@@ -1,0 +1,258 @@
+{
+  "name": "Job Alert Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5278de84-670d-443f-82fc-668e913b9711",
+              "name": "job_title",
+              "value": "\tAI Automation Intern",
+              "type": "string"
+            },
+            {
+              "id": "a1b0e1c7-aab0-49e1-918a-cfefe7788a69",
+              "name": "company",
+              "value": "Arachnix",
+              "type": "string"
+            },
+            {
+              "id": "36fc17b8-994f-45fc-99bb-458ccfa6e50e",
+              "name": "apply_link",
+              "value": "https://example.com/apply",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "46fef019-ef75-4d0e-ad07-fe3710fb4a0a",
+      "name": "Edit Fields (Details)"
+    },
+    {
+      "parameters": {
+        "url": "https://remotive.com/api/remote-jobs?limit=20",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        688,
+        0
+      ],
+      "id": "019641d9-1789-4efe-9188-ec57e3ea745f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "2867a5a9-7536-4059-8eee-ec9a120132bc",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const keywords = [\n  \"artificial intelligence\",\n  \"machine learning\",\n  \"deep learning\",\n  \"ai engineer\",\n  \"ml engineer\",\n  \"llm\",\n  \"generative ai\",\n  \"ai automation\",\n  \"n8n\",\n  \"rag\",\n  \"computer vision\",\n  \"nlp\"\n];\n\nreturn items.filter(item => {\n  const job = item.json;\n\n  const text = [\n    job.title || \"\",\n    job.category || \"\",\n    ...(job.tags || [])\n  ].join(\" \").toLowerCase();\n\n  return keywords.some(keyword => text.includes(keyword));\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        272
+      ],
+      "id": "072f6e16-efe0-4fb9-8455-af85fc7a01a6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fromEmail": "harisnawaz178@gmail.com",
+        "toEmail": "harisnawaz178@gmail.com",
+        "subject": "AI Job Hunter — New AI/ML Jobs",
+        "html": "=<h2>🤖 AI Job Hunter — Job Alerts</h2>\n<p>Here are the latest matching jobs:</p>\n\n<h3>{{ $json.title }}</h3>\n<p><b>Company:</b> {{ $json.company_name }}</p>\n<p><b>Category:</b> {{ $json.category }}</p>\n<p>\n  <a href=\"{{ $json.url }}\">View Job & Apply</a>\n</p>\n<hr>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        272
+      ],
+      "id": "8f8e39e3-a298-4691-ac2b-d56ea1b5bc0a",
+      "name": "Send an Email1",
+      "webhookId": "4e2c9227-884d-4f12-86b6-f56122c1ae39",
+      "credentials": {
+        "smtp": {
+          "id": "HsMly4s26yFoWjSB",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "82591eee-d49d-4740-ad3c-bff20e3b16fb",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        448,
+        272
+      ],
+      "id": "4098e84d-8780-4801-bd68-2b737987b3c0",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "552c4766-358b-496f-a9da-7bb51fdbf8cf",
+              "name": "=job_alert",
+              "value": "=={{ \n  \"💼 JOB ALERT\\n\\n\" +\n  \"Position: \" + $json.job_title + \"\\n\" +\n  \"Company: \" + $json.company + \"\\n\" +\n  \"Apply here: \" + $json.apply_link\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        272
+      ],
+      "id": "22c884e7-c461-401f-b11d-541ea8a11556",
+      "name": "Edit Fields (Job Alert)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields (Details)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email1": {
+      "main": [
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields (Details)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields (Job Alert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields (Job Alert)": {
+      "main": [
+        [
+          {
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2b27fd2b-7ffb-4b0a-bfd5-d28e4cf9b8a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29c4472c9820386725eeacc75d8d71c8e8ff43bda660f6940ffbf64f1a18622f"
+  },
+  "nodeGroups": [],
+  "id": "FYfUulIu6bc1V8NH",
+  "tags": []
+}
